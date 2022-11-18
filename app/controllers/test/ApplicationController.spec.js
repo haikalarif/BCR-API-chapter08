@@ -1,5 +1,5 @@
-const ApplicationController = require("./ApplicationController");
-const { NotFoundError } = require("../errors");
+const ApplicationController = require("../ApplicationController");
+const { NotFoundError } = require("../../errors");
 
 describe("applicationController", () => {
     describe("#getRoot", () => {

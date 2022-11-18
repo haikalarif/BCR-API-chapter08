@@ -1,41 +1,15 @@
-const AuthenticationController = require("./AuthenticationController");
-const { sequelize, User, Role } = require("../models");
-const authHelper = require("../helpers/auth.helper");
+const AuthenticationController = require("../AuthenticationController");
+const { sequelize, User, Role } = require("../../models");
+const authHelper = require("../../helpers/auth.helper");
+const request = require("supertest");
+const app = require("../../../app");
 const { queryInterface } = sequelize;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { WrongPasswordError, RecordNotFoundError, NotFoundError } = require("../errors");
-
-// beforeAll(async () => {
-//     const password = await authHelper.encryptedPassword("12345678");
-//     await queryInterface.bulkInsert("Users", [
-//         {
-//             name: "Haikal Arif",
-//             email: "haikalarif@gmail.com",
-//             image: "haikalarif.jpg",
-//             ecryptedPassword: password,
-//             roleId: 1,
-//             createdAt: new Date(),
-//             updatedAt: new Date()
-//         },
-//         {
-//             name: "Admin",
-//             email: "admin@gmail.com",
-//             image: "admin.jpg",
-//             ecryptedPassword: password,
-//             roleId: 2,
-//             createdAt: new Date(),
-//             updatedAt: new Date()
-//         }
-//     ], {});
-// });
-
-// afterAll(async () => {
-//     await queryInterface.bulkDelete("Users", null, {});
-// });
+const { WrongPasswordError, RecordNotFoundError, NotFoundError } = require("../../errors");
 
 describe("Auth Controller", () => {
-    describe("#handleLogin()", () => {
+    describe("#handleLogin", () => {
         it("should return 201 and accessToken", async () => {
             const password = await authHelper.encryptedPassword("12345678");
             const user = new User({
@@ -90,6 +64,28 @@ describe("Auth Controller", () => {
                 accessToke: expect.any(String),
             });
         });
+
+        it("should return 404 and message", async () => {
+            const email = "johnny@binar.co.id";
+            const password = "123456";
+
+            return request(app)
+                .post("/v1/auth/login")
+                .set("Content-Type", "application/json")
+                .send({ email, password })
+                .then((res) => {
+                    expect(res.statusCode).toBe(404)
+                    expect(res.body).toEqual(
+                        expect.objectContaining({
+                            error: expect.objectContaining({
+                                name: expect.any(String),
+                                message: expect.any(String),
+                                details: expect.objectContaining({ email: expect.any(String) }),
+                            }),
+                        }),
+                    )
+                })
+        })
 
         it("should return 401 and message", async () => {
             const password = await authHelper.encryptedPassword("12345678");

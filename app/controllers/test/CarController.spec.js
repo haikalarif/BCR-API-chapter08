@@ -1,6 +1,6 @@
-const CarController = require("./CarController");
-const { sequelize, Car } = require("../models");
-const page = require("./ApplicationController");
+const CarController = require("../CarController");
+const { sequelize, Car } = require("../../models");
+const page = require("../ApplicationController");
 const { queryInterface } = sequelize;
 
 describe("CarController", () => {
